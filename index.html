@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gold Apex AI — Terminal Pro V12</title>
+<title>Gold Apex AI — Terminal V14</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#C9A84C;--gl:#E8C460;--gd:rgba(201,168,76,0.12);--gb:rgba(201,168,76,0.22);--bg:#080808;--bg2:#0E0E0E;--bg3:#141414;--tx:#DDD5C8;--mu:#555;--gr:#4CAF82;--rd:#E05555}
@@ -20,22 +20,19 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;heigh
 .stab{flex:1;padding:12px 5px;font-size:9px;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;font-family:'DM Mono',monospace;text-transform:uppercase;text-align:center}
 .stab.on{color:var(--gl);border-bottom-color:var(--gold);background:var(--gd)}
 .msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:92%;padding:14px;border-radius:12px;font-size:13px;line-height:1.5}
+.msg{max-width:92%;padding:14px;border-radius:12px;font-size:13px;line-height:1.5;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .ai{background:var(--bg3);border-left:3px solid var(--gold);align-self:flex-start}
 .user{background:var(--gd);color:var(--gl);align-self:flex-end}
-.qas{display:flex;gap:8px;padding:10px;overflow-x:auto;border-top:1px solid #111;background:var(--bg2)}
-.qa{flex-shrink:0;background:var(--bg3);border:1px solid #222;border-radius:20px;color:#888;font-size:10px;padding:8px 14px;cursor:pointer}
+.qas{display:flex;gap:8px;padding:10px;overflow-x:auto;border-top:1px solid #111;background:var(--bg2);min-height:55px}
+.qa{flex-shrink:0;background:var(--bg3);border:1px solid #222;border-radius:20px;color:#888;font-size:10px;padding:8px 14px;cursor:pointer;white-space:nowrap}
 .in-area{padding:12px;background:var(--bg);display:flex;gap:10px;border-top:1px solid #111}
-input, select{flex:1;background:var(--bg3);border:1px solid #222;color:white;padding:10px;border-radius:8px;outline:none;font-size:12px}
-.sbtn{background:var(--gd);border:1px solid var(--gb);width:45px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--gl);border:1px solid var(--gold)}
+input, select{background:var(--bg3);border:1px solid #333;color:white;padding:10px;border-radius:8px;outline:none;font-size:12px;width:100%}
+.sbtn{background:var(--gd);border:1px solid var(--gold);width:45px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--gl);cursor:pointer}
 hr{border:0;border-top:1px solid rgba(201,168,76,0.2);margin:8px 0}
 b{color:var(--gl)}
-
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:10000;align-items:center;justify-content:center;padding:20px}
-.modal-content{background:var(--bg2);border:1px solid var(--gold);padding:20px;border-radius:15px;max-width:400px;width:100%;position:relative}
-.close-modal{position:absolute;top:10px;right:15px;font-size:20px;color:var(--mu);cursor:pointer}
-.modal-body{font-size:13px;line-height:1.6;color:var(--tx)}
-
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;align-items:center;justify-content:center;padding:20px}
+.modal-content{background:var(--bg2);border:1px solid var(--gold);padding:20px;border-radius:15px;max-width:400px;width:100%}
 #alertOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(224,85,85,0.95);color:white;z-index:9999;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
 </style>
 </head>
@@ -43,16 +40,15 @@ b{color:var(--gl)}
 
 <div id="alertOverlay">
     <h1 style="font-family:'Bebas Neue'; font-size:40px;">⚠️ STOP TRADING ⚠️</h1>
-    <p style="font-size:18px; margin-top:10px;">Perte journalière > 15%.<br><b>Ton capital est en danger. Arrête toi.</b></p>
-    <button onclick="document.getElementById('alertOverlay').style.display='none'" style="margin-top:20px; padding:10px 20px; background:white; border:none; border-radius:5px; font-weight:bold; color:red;">J'AI COMPRIS</button>
+    <p style="font-size:18px; margin-top:10px;">Perte journalière > 15%.<br>Reviens demain pour protéger ton capital.</p>
+    <button onclick="document.getElementById('alertOverlay').style.display='none'" style="margin-top:20px; padding:10px 20px; background:white; border:none; border-radius:5px; font-weight:bold; color:red;">COMPRIS</button>
 </div>
 
 <div id="stratModal" class="modal">
     <div class="modal-content">
-        <span class="close-modal" onclick="closeStrat()">&times;</span>
         <div id="stratTitle" style="font-family:'Bebas Neue'; font-size:22px; color:var(--gl); margin-bottom:10px;">STRATÉGIE</div>
-        <div class="modal-body" id="stratBody">Contenu...</div>
-        <button class="sbtn" style="width:100%; margin-top:15px; height:40px; color:black; background:var(--gold);" onclick="closeStrat()">FERMER</button>
+        <div id="stratBody" style="font-size:13px; line-height:1.6;"></div>
+        <button onclick="closeStrat()" style="width:100%; margin-top:15px; height:40px; background:var(--gold); border:none; border-radius:8px; font-weight:bold; cursor:pointer;">FERMER</button>
     </div>
 </div>
 
@@ -62,7 +58,7 @@ b{color:var(--gl)}
 </div>
 
 <div class="cap-bar">
-    <div>SOLDE: <b id="capDisp" style="color:var(--gl)">100.00</b>€</div>
+    <div>SOLDE: <b id="capDisp">100.00</b>€</div>
     <div id="ddDisp">JOUR: 0%</div>
 </div>
 
@@ -74,34 +70,34 @@ b{color:var(--gl)}
 </div>
 
 <div class="msgs" id="chat">
-    <div class="msg ai"><b>Terminal Gold Apex V12 Prêt.</b><br>Précision Vantage 1:500 active.<br>Entre ton capital actuel pour commencer.</div>
+    <div class="msg ai"><b>Terminal V14 Connecté.</b><br>Précision Vantage 1:500. Tape ton capital (ex: 100) pour commencer.</div>
 </div>
 
 <div class="qas" id="actionButtons"></div>
 
 <div class="in-area">
-    <input type="text" id="userInput" placeholder="Note ou 'capital = 100'">
+    <input type="text" id="userInput" placeholder="Note ou '100'">
     <button class="sbtn" onclick="handleSend()">🚀</button>
 </div>
 
 <script>
 let state = { 
-    cap: parseFloat(localStorage.getItem('apex_v12_cap')) || 100.00,
-    startDayCap: parseFloat(localStorage.getItem('apex_v12_daystart')) || 100.00,
-    journal: JSON.parse(localStorage.getItem('apex_v12_journal')) || [],
+    cap: parseFloat(localStorage.getItem('apex_v14_cap')) || 100.00,
+    startDayCap: parseFloat(localStorage.getItem('apex_v14_daystart')) || 100.00,
+    journal: JSON.parse(localStorage.getItem('apex_v14_journal')) || [],
     activeTrade: null
 };
 
 const STRAT_DATA = {
-    LIQ: { t: "🎯 LIQUIDITY SWEEP", b: "1. Repérer les plateaux (Equal Highs).<br>2. Attendre une mèche qui dépasse de 5-10 pips.<br>3. Réintégration immédiate + BOS M1.<br>4. Entrée au retest." },
-    LDN: { t: "🇬🇧 LONDON SILVER BULLET", b: "Fenêtre 09:00 - 10:00.<br>Souvent une fausse cassure à 09:10 (Judas).<br>Vise l'expansion vers le range opposé." },
-    ICT: { t: "💎 ICT FAIR VALUE GAP", b: "Identifier une bougie de force.<br>Repérer le 'vide' entre bougie 1 et 3.<br>Entrée à 50% du gap (Conséquent Encroachment)." }
+    LIQ: { t: "🎯 LIQUIDITY SWEEP", b: "1. Repérer EQH/EQL.<br>2. Attendre le sweep (mèche).<br>3. Cassure de structure M1.<br>4. Entrée retest." },
+    LDN: { t: "🇬🇧 LONDON SILVER BULLET", b: "Fenêtre 09h00-10h00.<br>Souvent une manipulation Judas Swing à 09h10.<br>Vise l'expansion." },
+    ICT: { t: "💎 ICT / FVG", b: "Bougie impulsive + Gap.<br>Entrée à 50% du FVG.<br>SL derrière la bougie d'impulsion." }
 };
 
 function updateUI() {
-    document.getElementById('capDisp').innerText = state.cap.toFixed(2);
-    localStorage.setItem('apex_v12_cap', state.cap);
-    localStorage.setItem('apex_v12_daystart', state.startDayCap);
+    document.getElementById('capDisp').innerText = state.cap.toFixed(2) + "€";
+    localStorage.setItem('apex_v14_cap', state.cap);
+    localStorage.setItem('apex_v14_daystart', state.startDayCap);
     
     let lossPct = ((state.startDayCap - state.cap) / state.startDayCap) * 100;
     document.getElementById('ddDisp').innerText = `JOUR: ${lossPct > 0 ? lossPct.toFixed(1) : 0}%`;
@@ -116,8 +112,8 @@ function updateUI() {
     } else {
         indicator.classList.remove('active');
         actions.innerHTML = `
-            <div class="qa" onclick="askEntry('achat')" style="border-color:var(--gr)">🟢 ACHAT</div>
-            <div class="qa" onclick="askEntry('vente')" style="border-color:var(--rd)">🔴 VENTE</div>
+            <div class="qa" onclick="askEntry('achat')" style="border-color:var(--gr); color:var(--gr)">🟢 ACHAT</div>
+            <div class="qa" onclick="askEntry('vente')" style="border-color:var(--rd); color:var(--rd)">🔴 VENTE</div>
             <div class="qa" onclick="clearChat()">🧹 NETTOYER</div>
             <div class="qa" onclick="copyReport()">📋 COPIER RAPPORT</div>
         `;
@@ -133,117 +129,83 @@ function closeStrat() { document.getElementById('stratModal').style.display = 'n
 
 function askEntry(type) {
     addMsg('ai', `<b>Configuration ${type.toUpperCase()}</b>
-        <div style="background:var(--bg2); padding:10px; border-radius:8px; margin-top:10px; border:1px solid var(--gold)">
-            <label style="font-size:10px; color:var(--mu);">PRIX D'ENTRÉE VANTAGE</label>
-            <input type="number" id="priceInp" step="0.01" placeholder="Ex: 2024.50" style="width:100%; margin-bottom:10px;">
-            
-            <label style="font-size:10px; color:var(--mu);">RISQUE SUR CAPITAL (%)</label>
-            <select id="riskInp" style="width:100%; margin-bottom:10px; background:#000; color:var(--gl); border:1px solid var(--mu); padding:8px;">
-                <option value="2">2% (Prudent)</option>
-                <option value="5" selected>5% (Standard)</option>
-                <option value="10">10% (Aggressif)</option>
-                <option value="15">15% (All-in Journée)</option>
+        <div style="background:var(--bg3); padding:10px; border-radius:8px; margin-top:8px; border:1px solid #333">
+            <input type="number" id="priceInp" step="0.1" placeholder="Prix Vantage" style="margin-bottom:8px;">
+            <div style="display:flex; gap:5px; margin-bottom:8px;">
+                <select id="riskInp"><option value="2">Risque 2%</option><option value="5" selected>Risque 5%</option><option value="10">Risque 10%</option></select>
+                <select id="slInp"><option value="1">SL 1pt</option><option value="2.5" selected>SL 2.5pts</option><option value="5">SL 5pts</option></select>
+            </div>
+            <select id="stratInp" style="margin-bottom:8px;">
+                <option value="Liquidity">Liquidity Sweep</option><option value="London">London Bullet</option><option value="ICT">ICT / FVG</option><option value="News">News / Scalping</option>
             </select>
-
-            <label style="font-size:10px; color:var(--mu);">STRATÉGIE</label>
-            <select id="stratInp" style="width:100%; margin-bottom:10px; background:#000; color:var(--gl); border:1px solid var(--mu); padding:8px;">
-                <option value="Liquidity">Liquidity Sweep</option>
-                <option value="London">London Silver Bullet</option>
-                <option value="ICT">ICT / FVG</option>
-                <option value="Scalping">Scalping Manuel</option>
-            </select>
-            <button class="sbtn" style="width:100%; background:var(--gold); color:black; font-weight:bold;" onclick="confirmTrade('${type}')">VALIDER & CALCULER</button>
+            <button onclick="confirmTrade('${type}')" style="width:100%; padding:10px; background:var(--gold); color:black; font-weight:bold; border:none; border-radius:5px;">VALIDER</button>
         </div>`);
 }
 
 function confirmTrade(type) {
     const p = parseFloat(document.getElementById('priceInp').value);
     const strat = document.getElementById('stratInp').value;
-    const riskPct = parseFloat(document.getElementById('riskInp').value);
+    const risk = parseFloat(document.getElementById('riskInp').value);
+    const slDist = parseFloat(document.getElementById('slInp').value);
+    
     if(!p) return;
 
-    // CALCUL DYNAMIQUE BASÉ SUR LE RISQUE CHOISI
-    let riskEuro = state.cap * (riskPct / 100);
-    // On garde un SL de 2.5 points (25 pips sur Gold)
-    let dynamicLot = (riskEuro / 2.5) / 10; 
-    dynamicLot = Math.max(0.01, parseFloat(dynamicLot.toFixed(2)));
+    let riskEuro = state.cap * (risk / 100);
+    let lot = (riskEuro / slDist) / 10;
+    lot = Math.max(0.01, parseFloat(lot.toFixed(2)));
 
-    let sl = type === 'achat' ? p - 2.5 : p + 2.5;
-    let tp = type === 'achat' ? p + 5 : p - 5;
+    let slPrice = type === 'achat' ? p - slDist : p + slDist;
+    let tpPrice = type === 'achat' ? p + (slDist * 2) : p - (slDist * 2);
 
-    state.activeTrade = { type, entry: p, lot: dynamicLot, sl, tp, strat, risk: riskPct, time: new Date().toLocaleTimeString() };
-    
-    addMsg('ai', `🚀 <b>TRADE ACTIF</b><hr>
-        Strat: <b>${strat}</b><br>
-        Risque: <b>${riskPct}%</b> (${riskEuro.toFixed(2)}€)<br>
-        Lot Vantage : <b style="font-size:18px; color:white;">${dynamicLot}</b><br>
-        <hr>
-        SL: ${sl.toFixed(2)} | TP: ${tp.toFixed(2)}`);
+    state.activeTrade = { type, entry: p, lot, sl: slPrice, tp: tpPrice, strat, time: new Date().toLocaleTimeString() };
+    addMsg('ai', `🚀 <b>TRADE ACTIF</b><hr>Lot Vantage : <b style="font-size:18px;">${lot}</b><br>SL: ${slPrice.toFixed(2)} | TP: ${tpPrice.toFixed(2)}`);
     updateUI();
-}
 }
 
 function showCloseForm() {
-    addMsg('ai', `<b>Fermeture de position</b><br>Indique le résultat final :
-        <div style="background:var(--bg2); padding:10px; border-radius:8px; margin-top:10px; border:1px solid var(--rd)">
-            <select id="resType" style="width:100%; margin-bottom:10px; background:#000; color:white; padding:8px;">
-                <option value="TP">🎯 TAKE PROFIT</option>
-                <option value="SL">🛑 STOP LOSS</option>
-                <option value="MANUAL">✋ SORTIE MANUELLE</option>
-            </select>
-            <input type="number" id="pnlInp" step="0.01" placeholder="Gain/Perte en €" style="width:100%; margin-bottom:10px;">
-            <button class="sbtn" style="width:100%; border-color:var(--rd); color:var(--rd)" onclick="confirmClose()">ENREGISTRER AU JOURNAL</button>
+    addMsg('ai', `<b>Fermeture de position</b>
+        <div style="background:var(--bg3); padding:10px; border-radius:8px; margin-top:8px; border:1px solid var(--rd)">
+            <select id="resType" style="margin-bottom:8px;"><option value="TP">🎯 TAKE PROFIT</option><option value="SL">🛑 STOP LOSS</option><option value="MANUAL">✋ MANUEL</option></select>
+            <input type="number" id="pnlInp" step="0.01" placeholder="Profit/Perte (€)" style="margin-bottom:8px;">
+            <button onclick="confirmClose()" style="width:100%; padding:10px; border:1px solid var(--rd); color:var(--rd); background:none; font-weight:bold;">ARCHIVER</button>
         </div>`);
 }
 
 function confirmClose() {
     const pnl = parseFloat(document.getElementById('pnlInp').value) || 0;
     const res = document.getElementById('resType').value;
-    const finishedTrade = { ...state.activeTrade, result: res, pnl: pnl, closeTime: new Date().toLocaleTimeString() };
+    state.journal.push({ ...state.activeTrade, result: res, pnl: pnl, closeTime: new Date().toLocaleTimeString() });
     state.cap += pnl;
-    state.journal.push(finishedTrade);
     state.activeTrade = null;
+    localStorage.setItem('apex_v14_journal', JSON.stringify(state.journal));
+    addMsg('ai', `✅ <b>Clôturé.</b> Nouveau solde : ${state.cap.toFixed(2)}€`);
     updateUI();
-    addMsg('ai', `✅ <b>Journal mis à jour.</b><br>Nouveau solde : ${state.cap.toFixed(2)}€`);
 }
 
 function viewJournal() {
     if(state.journal.length === 0) return addMsg('ai', "Journal vide.");
-    let html = "<b>📜 HISTORIQUE DES TRADES</b><hr>";
-    state.journal.slice(-5).reverse().forEach(j => {
-        let color = j.pnl >= 0 ? 'var(--gr)' : 'var(--rd)';
-        html += `<div style="font-size:11px; margin-bottom:8px; border-bottom:1px solid #222; padding-bottom:4px;">
-        [${j.time}] ${j.strat} (${j.type})<br>RÉSULTAT : <b style="color:${color}">${j.pnl > 0 ? '+' : ''}${j.pnl.toFixed(2)}€</b> (${j.result})
-        </div>`;
+    let html = "<b>📜 DERNIERS TRADES</b><hr>";
+    state.journal.slice(-3).reverse().forEach(j => {
+        html += `<div style="font-size:11px; margin-bottom:5px; border-bottom:1px solid #222; padding-bottom:3px;">
+        [${j.time}] ${j.strat} : <b>${j.pnl > 0 ? '+' : ''}${j.pnl}€</b></div>`;
     });
     addMsg('ai', html);
 }
-
-function clearChat() { document.getElementById('chat').innerHTML = '<div class="msg ai"><b>Terminal nettoyé.</b> Historique et capital conservés.</div>'; }
 
 function handleSend() {
     const inp = document.getElementById('userInput');
     let val = inp.value.trim();
     if(!val) return;
-    if(val.toLowerCase().includes('capital')) {
-        let num = val.match(/[\d.]+/);
-        if(num) { 
-            state.cap = parseFloat(num[0]); 
-            state.startDayCap = state.cap; 
-            addMsg('ai', `✅ Capital initialisé à <b>${state.cap}€</b>`); 
-        }
+    if(!isNaN(val)) {
+        state.cap = parseFloat(val); state.startDayCap = state.cap;
+        addMsg('ai', `Capital réglé à <b>${state.cap}€</b>. Prêt !`);
     } else {
         addMsg('user', val);
-        state.journal.push({date: new Date().toLocaleTimeString(), type: 'NOTE', note: val});
     }
     inp.value = ""; updateUI();
 }
 
-function copyReport() {
-    let report = `RAPPORT DE SESSION GOLD APEX\n--------------------------\nSolde : ${state.cap.toFixed(2)}€\nTrades : ` + JSON.stringify(state.journal.slice(-10), null, 2);
-    navigator.clipboard.writeText(report);
-    alert("Rapport copié ! Colle-le dans ton chat IA pour analyse.");
-}
+function clearChat() { document.getElementById('chat').innerHTML = '<div class="msg ai"><b>Terminal nettoyé.</b></div>'; }
 
 function addMsg(role, content) {
     const chat = document.getElementById('chat');
@@ -253,6 +215,12 @@ function addMsg(role, content) {
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
 }
+
+function copyReport() {
+    navigator.clipboard.writeText(JSON.stringify(state.journal));
+    alert("Copié !");
+}
+
 updateUI();
 </script>
 </body>
