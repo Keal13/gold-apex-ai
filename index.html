@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gold Apex AI — Terminal V16</title>
+<title>Gold Apex AI — Terminal V17</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#C9A84C;--gl:#E8C460;--gd:rgba(201,168,76,0.12);--gb:rgba(201,168,76,0.22);--bg:#080808;--bg2:#0E0E0E;--bg3:#141414;--tx:#DDD5C8;--mu:#555;--gr:#4CAF82;--rd:#E05555}
@@ -72,7 +72,7 @@ b{color:var(--gl)}
 </div>
 
 <div class="msgs" id="chat">
-    <div class="msg ai"><b>Terminal V16 Connecté.</b><br>Utilise "RESET SESSION" chaque matin pour rafraîchir ton drawdown journalier.</div>
+    <div class="msg ai"><b>Terminal V17 Connecté.</b><br>Calcul des micro-lots corrigé pour Gold Vantage (0.01 = 0.10€ par point).</div>
 </div>
 
 <div class="qas" id="actionButtons"></div>
@@ -84,9 +84,9 @@ b{color:var(--gl)}
 
 <script>
 let state = { 
-    cap: parseFloat(localStorage.getItem('apex_v16_cap')) || 100.00,
-    startDayCap: parseFloat(localStorage.getItem('apex_v16_daystart')) || 100.00,
-    journal: JSON.parse(localStorage.getItem('apex_v16_journal')) || [],
+    cap: parseFloat(localStorage.getItem('apex_v17_cap')) || 100.00,
+    startDayCap: parseFloat(localStorage.getItem('apex_v17_daystart')) || 100.00,
+    journal: JSON.parse(localStorage.getItem('apex_v17_journal')) || [],
     activeTrade: null
 };
 
@@ -98,8 +98,8 @@ const STRAT_DATA = {
 
 function updateUI() {
     document.getElementById('capDisp').innerText = state.cap.toFixed(2) + "€";
-    localStorage.setItem('apex_v16_cap', state.cap);
-    localStorage.setItem('apex_v16_daystart', state.startDayCap);
+    localStorage.setItem('apex_v17_cap', state.cap);
+    localStorage.setItem('apex_v17_daystart', state.startDayCap);
     
     let lossPct = ((state.startDayCap - state.cap) / state.startDayCap) * 100;
     document.getElementById('ddDisp').innerText = `JOUR: ${lossPct > 0 ? lossPct.toFixed(1) : 0}%`;
@@ -160,15 +160,21 @@ function confirmTrade(type) {
     
     if(!p) return;
 
+    // --- CORRECTION DU CALCUL DES LOTS ---
+    // Sur Gold Vantage : 1 lot = 10€ par point de mouvement.
+    // Donc 0.01 lot = 0.10€ par point.
+    // Formule : Risque (€) / Distance SL (pts) / 10 = Taille du Lot
     let riskEuro = state.cap * (risk / 100);
     let lot = (riskEuro / slDist) / 10;
+    
+    // Arrondi à 0.01 près pour micro-lots
     lot = Math.max(0.01, parseFloat(lot.toFixed(2)));
 
     let slPrice = type === 'achat' ? p - slDist : p + slDist;
     let tpPrice = type === 'achat' ? p + (slDist * 2) : p - (slDist * 2);
 
     state.activeTrade = { type, entry: p, lot, sl: slPrice, tp: tpPrice, strat, time: new Date().toLocaleTimeString() };
-    addMsg('ai', `🚀 <b>TRADE ACTIF</b><hr>Lot à saisir : <b style="font-size:18px; color:white;">${lot}</b><br>SL: ${slPrice.toFixed(2)} | TP: ${tpPrice.toFixed(2)}`);
+    addMsg('ai', `🚀 <b>TRADE ACTIF</b><hr>Lot à saisir : <b style="font-size:18px; color:white;">${lot}</b><br>Risque réel : ${riskEuro.toFixed(2)}€<br>SL: ${slPrice.toFixed(2)} | TP: ${tpPrice.toFixed(2)}`);
     updateUI();
 }
 
@@ -192,8 +198,8 @@ function confirmClose() {
     state.cap += pnl; 
     
     state.activeTrade = null;
-    localStorage.setItem('apex_v16_journal', JSON.stringify(state.journal));
-    localStorage.setItem('apex_v16_cap', state.cap);
+    localStorage.setItem('apex_v17_journal', JSON.stringify(state.journal));
+    localStorage.setItem('apex_v17_cap', state.cap);
 
     addMsg('ai', `✅ <b>Position Archivée</b><br>Résultat : <b style="color:${pnl >= 0 ? 'var(--gr)' : 'var(--rd)'}">${pnl > 0 ? '+' : ''}${pnl.toFixed(2)}€</b><br>Nouveau Solde : ${state.cap.toFixed(2)}€`);
     updateUI();
