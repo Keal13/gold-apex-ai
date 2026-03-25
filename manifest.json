@@ -1,0 +1,15 @@
+{
+  "name": "Gold Apex AI",
+  "short_name": "GoldApex",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#C9A84C",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2992/2992743.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
