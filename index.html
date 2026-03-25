@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gold Apex AI — Terminal V17</title>
+<title>Gold Apex AI — Terminal V18</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--gold:#C9A84C;--gl:#E8C460;--gd:rgba(201,168,76,0.12);--gb:rgba(201,168,76,0.22);--bg:#080808;--bg2:#0E0E0E;--bg3:#141414;--tx:#DDD5C8;--mu:#555;--gr:#4CAF82;--rd:#E05555}
+:root{--gold:#C9A84C;--gl:#E8C460;--gd:rgba(201,168,76,0.12);--gb:rgba(201,168,76,0.22);--bg:#080808;--bg2:#0E0E0E;--bg3:#141414;--tx:#DDD5C8;--mu:#555;--gr:#4CAF82;--rd:#E05555;--or:#FFA500}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 .hdr{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #1A1A1A;flex-shrink:0}
@@ -19,7 +19,6 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;heigh
 .rs-btn{background:var(--rd);color:white;border:none;padding:4px 8px;border-radius:4px;font-size:9px;cursor:pointer;font-weight:bold}
 .stabs{display:flex;border-bottom:1px solid #111;flex-shrink:0;background:var(--bg2)}
 .stab{flex:1;padding:12px 5px;font-size:9px;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;font-family:'DM Mono',monospace;text-transform:uppercase;text-align:center}
-.stab.on{color:var(--gl);border-bottom-color:var(--gold);background:var(--gd)}
 .msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
 .msg{max-width:92%;padding:14px;border-radius:12px;font-size:13px;line-height:1.5;animation:fadeIn 0.3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
@@ -41,8 +40,8 @@ b{color:var(--gl)}
 
 <div id="alertOverlay">
     <h1 style="font-family:'Bebas Neue'; font-size:40px;">⚠️ STOP TRADING ⚠️</h1>
-    <p style="font-size:18px; margin-top:10px;">Perte journalière > 15%.<br>La séance est terminée. Protège ton capital.</p>
-    <button onclick="document.getElementById('alertOverlay').style.display='none'" style="margin-top:20px; padding:10px 20px; background:white; border:none; border-radius:5px; font-weight:bold; color:red;">J'AI COMPRIS</button>
+    <p style="font-size:18px; margin-top:10px;">Perte journalière > 15%.<br>Séance terminée.</p>
+    <button onclick="document.getElementById('alertOverlay').style.display='none'" style="margin-top:20px; padding:10px 20px; background:white; border:none; border-radius:5px; font-weight:bold; color:red;">OK</button>
 </div>
 
 <div id="stratModal" class="modal">
@@ -72,38 +71,37 @@ b{color:var(--gl)}
 </div>
 
 <div class="msgs" id="chat">
-    <div class="msg ai"><b>Terminal V17 Connecté.</b><br>Calcul des micro-lots corrigé pour Gold Vantage (0.01 = 0.10€ par point).</div>
+    <div class="msg ai"><b>Terminal V18 Connecté.</b><br>Mode "Calculatrice Manuelle" activé. Entre ton capital pour commencer.</div>
 </div>
 
 <div class="qas" id="actionButtons"></div>
 
 <div class="in-area">
-    <input type="text" id="userInput" placeholder="Note ou montant capital">
+    <input type="text" id="userInput" placeholder="Note ou capital">
     <button class="sbtn" onclick="handleSend()">🚀</button>
 </div>
 
 <script>
 let state = { 
-    cap: parseFloat(localStorage.getItem('apex_v17_cap')) || 100.00,
-    startDayCap: parseFloat(localStorage.getItem('apex_v17_daystart')) || 100.00,
-    journal: JSON.parse(localStorage.getItem('apex_v17_journal')) || [],
+    cap: parseFloat(localStorage.getItem('apex_v18_cap')) || 100.00,
+    startDayCap: parseFloat(localStorage.getItem('apex_v18_daystart')) || 100.00,
+    journal: JSON.parse(localStorage.getItem('apex_v18_journal')) || [],
     activeTrade: null
 };
 
 const STRAT_DATA = {
-    LIQ: { t: "🎯 LIQUIDITY SWEEP", b: "1. Repérer EQH/EQL.<br>2. Attendre le balayage (mèche).<br>3. Cassure structure M1.<br>4. Entrée sur Retest." },
-    LDN: { t: "🇬🇧 LONDON SILVER BULLET", b: "Fenêtre 09h00-10h00.<br>Souvent manipulation Judas à 09h10.<br>Expansion vers liquidité opposée." },
-    ICT: { t: "💎 ICT / FVG", b: "Impulsion forte + Gap.<br>Entrée zone 50% du gap.<br>SL derrière la bougie mère." }
+    LIQ: { t: "🎯 LIQUIDITY SWEEP", b: "1. Repérer EQH/EQL.<br>2. Sweep.<br>3. MSS M1.<br>4. Retest." },
+    LDN: { t: "🇬🇧 LONDON SILVER BULLET", b: "09h00-10h00.<br>Judas à 09h10." },
+    ICT: { t: "💎 ICT / FVG", b: "Impulsion + FVG.<br>Vise le 50%." }
 };
 
 function updateUI() {
     document.getElementById('capDisp').innerText = state.cap.toFixed(2) + "€";
-    localStorage.setItem('apex_v17_cap', state.cap);
-    localStorage.setItem('apex_v17_daystart', state.startDayCap);
+    localStorage.setItem('apex_v18_cap', state.cap);
+    localStorage.setItem('apex_v18_daystart', state.startDayCap);
     
     let lossPct = ((state.startDayCap - state.cap) / state.startDayCap) * 100;
     document.getElementById('ddDisp').innerText = `JOUR: ${lossPct > 0 ? lossPct.toFixed(1) : 0}%`;
-    document.getElementById('ddDisp').style.color = lossPct > 10 ? 'var(--rd)' : (lossPct > 0 ? 'orange' : 'var(--mu)');
     
     if(lossPct >= 15) document.getElementById('alertOverlay').style.display = 'flex';
 
@@ -119,7 +117,6 @@ function updateUI() {
             <div class="qa" onclick="askEntry('achat')" style="border-color:var(--gr); color:var(--gr)">🟢 ACHAT</div>
             <div class="qa" onclick="askEntry('vente')" style="border-color:var(--rd); color:var(--rd)">🔴 VENTE</div>
             <div class="qa" onclick="clearChat()">🧹 NETTOYER</div>
-            <div class="qa" onclick="copyReport()">📋 COPIER RAPPORT</div>
         `;
     }
 }
@@ -127,7 +124,7 @@ function updateUI() {
 function resetSession() {
     state.startDayCap = state.cap;
     updateUI();
-    addMsg('ai', `🔄 <b>Session réinitialisée.</b><br>Nouveau point de référence : ${state.cap.toFixed(2)}€.<br>Drawdown JOUR : 0%`);
+    addMsg('ai', `🔄 Session réinitialisée à ${state.cap.toFixed(2)}€.`);
 }
 
 function popStrat(s) {
@@ -138,112 +135,104 @@ function popStrat(s) {
 function closeStrat() { document.getElementById('stratModal').style.display = 'none'; }
 
 function askEntry(type) {
-    addMsg('ai', `<b>Setup ${type.toUpperCase()}</b>
+    addMsg('ai', `<b>Calculatrice ${type.toUpperCase()}</b>
         <div style="background:var(--bg3); padding:10px; border-radius:8px; margin-top:8px; border:1px solid #333">
-            <input type="number" id="priceInp" step="0.1" placeholder="Prix Vantage" style="margin-bottom:8px;">
-            <div style="display:flex; gap:5px; margin-bottom:8px;">
-                <select id="riskInp"><option value="2">Risque 2%</option><option value="5" selected>Risque 5%</option><option value="10">Risque 10%</option></select>
-                <select id="slInp"><option value="1">SL 1pt</option><option value="2.5" selected>SL 2.5pts</option><option value="5">SL 5pts</option></select>
-            </div>
-            <select id="stratInp" style="margin-bottom:8px;">
-                <option value="Liquidity">Liquidity Sweep</option><option value="London">London Bullet</option><option value="ICT">ICT / FVG</option><option value="News">News / Scalping</option>
+            <label style="font-size:10px; color:#888;">PRIX D'ENTRÉE</label>
+            <input type="number" id="priceInp" step="0.01" placeholder="Ex: 2024.50" style="margin-bottom:8px;">
+            
+            <label style="font-size:10px; color:#888;">PRIX DU STOP LOSS (SL)</label>
+            <input type="number" id="slPriceInp" step="0.01" placeholder="Ton prix de sortie" style="margin-bottom:8px;">
+            
+            <label style="font-size:10px; color:#888;">RISQUE (%)</label>
+            <select id="riskInp" style="margin-bottom:8px;">
+                <option value="1">1%</option><option value="2">2%</option><option value="5" selected>5%</option><option value="10">10%</option>
             </select>
-            <button onclick="confirmTrade('${type}')" style="width:100%; padding:10px; background:var(--gold); color:black; font-weight:bold; border:none; border-radius:5px; cursor:pointer;">VALIDER</button>
+            
+            <button onclick="confirmTrade('${type}')" style="width:100%; padding:10px; background:var(--gold); color:black; font-weight:bold; border:none; border-radius:5px; cursor:pointer;">CALCULER LOT</button>
         </div>`);
 }
 
 function confirmTrade(type) {
-    const p = parseFloat(document.getElementById('priceInp').value);
-    const strat = document.getElementById('stratInp').value;
-    const risk = parseFloat(document.getElementById('riskInp').value);
-    const slDist = parseFloat(document.getElementById('slInp').value);
+    const entry = parseFloat(document.getElementById('priceInp').value);
+    const slPrice = parseFloat(document.getElementById('slPriceInp').value);
+    const riskPct = parseFloat(document.getElementById('riskInp').value);
     
-    if(!p) return;
+    if(!entry || !slPrice) return;
 
-    // --- CORRECTION DU CALCUL DES LOTS ---
-    // Sur Gold Vantage : 1 lot = 10€ par point de mouvement.
-    // Donc 0.01 lot = 0.10€ par point.
-    // Formule : Risque (€) / Distance SL (pts) / 10 = Taille du Lot
-    let riskEuro = state.cap * (risk / 100);
-    let lot = (riskEuro / slDist) / 10;
+    // Calcul de la distance du SL en points (Gold: 1 point = 1.00 de prix)
+    let dist = Math.abs(entry - slPrice);
+    if(dist === 0) return;
+
+    // Calcul du risque en Euros
+    let riskEuro = state.cap * (riskPct / 100);
     
-    // Arrondi à 0.01 près pour micro-lots
-    lot = Math.max(0.01, parseFloat(lot.toFixed(2)));
+    // Formule Vantage Gold : Lot = Risque / (Distance * 10)
+    let lot = riskEuro / (dist * 10);
+    let finalLot = parseFloat(lot.toFixed(2));
+    
+    // Alerte si le lot minimum (0.01) dépasse le risque choisi
+    let warning = "";
+    if(finalLot < 0.01) {
+        finalLot = 0.01;
+        let realRisk = (0.01 * dist * 10);
+        warning = `<div style="color:var(--or); font-size:11px; margin-top:5px;">⚠️ Risque dépassé ! Avec 0.01 lot, tu risques ${realRisk.toFixed(2)}€ au lieu de ${riskEuro.toFixed(2)}€.</div>`;
+    }
 
-    let slPrice = type === 'achat' ? p - slDist : p + slDist;
-    let tpPrice = type === 'achat' ? p + (slDist * 2) : p - (slDist * 2);
-
-    state.activeTrade = { type, entry: p, lot, sl: slPrice, tp: tpPrice, strat, time: new Date().toLocaleTimeString() };
-    addMsg('ai', `🚀 <b>TRADE ACTIF</b><hr>Lot à saisir : <b style="font-size:18px; color:white;">${lot}</b><br>Risque réel : ${riskEuro.toFixed(2)}€<br>SL: ${slPrice.toFixed(2)} | TP: ${tpPrice.toFixed(2)}`);
+    state.activeTrade = { type, entry, lot: finalLot, sl: slPrice, risk: riskPct, time: new Date().toLocaleTimeString() };
+    
+    addMsg('ai', `✅ <b>Calcul Terminé</b><hr>
+        Distance SL : <b>${dist.toFixed(2)} pts</b><br>
+        Lot à prendre : <b style="font-size:20px; color:white;">${finalLot}</b>
+        ${warning}
+        <br><span style="font-size:11px; color:#888;">(Basé sur un risque de ${riskEuro.toFixed(2)}€)</span>`);
     updateUI();
 }
 
 function showCloseForm() {
-    addMsg('ai', `<b>Fermeture de position</b>
+    addMsg('ai', `<b>Résultat du trade</b>
         <div style="background:var(--bg3); padding:10px; border-radius:8px; margin-top:8px; border:1px solid var(--rd)">
-            <label style="font-size:10px; color:#888;">TYPE DE SORTIE</label>
-            <select id="resType" style="margin-bottom:8px;"><option value="TP">🎯 TAKE PROFIT</option><option value="SL">🛑 STOP LOSS</option><option value="MANUAL">✋ MANUEL</option></select>
-            <label style="font-size:10px; color:#888;">RÉSULTAT (€)</label>
-            <input type="number" id="pnlInp" step="0.01" placeholder="Ex: 50 ou -20" style="margin-bottom:8px;">
-            <button onclick="confirmClose()" style="width:100%; padding:10px; border:1px solid var(--rd); color:var(--rd); background:none; font-weight:bold; cursor:pointer;">ENREGISTRER</button>
+            <input type="number" id="pnlInp" step="0.01" placeholder="Profit/Perte en €" style="margin-bottom:8px;">
+            <button onclick="confirmClose()" style="width:100%; padding:10px; border:1px solid var(--rd); color:var(--rd); background:none; font-weight:bold; cursor:pointer;">ARCHIVER</button>
         </div>`);
 }
 
 function confirmClose() {
-    const pnlInput = document.getElementById('pnlInp').value;
-    const pnl = parseFloat(pnlInput) || 0; 
-    const res = document.getElementById('resType').value;
-    
-    state.journal.push({ ...state.activeTrade, result: res, pnl: pnl, closeTime: new Date().toLocaleTimeString() });
+    const pnl = parseFloat(document.getElementById('pnlInp').value) || 0;
+    state.journal.push({ ...state.activeTrade, pnl, closeTime: new Date().toLocaleTimeString() });
     state.cap += pnl; 
-    
     state.activeTrade = null;
-    localStorage.setItem('apex_v17_journal', JSON.stringify(state.journal));
-    localStorage.setItem('apex_v17_cap', state.cap);
-
-    addMsg('ai', `✅ <b>Position Archivée</b><br>Résultat : <b style="color:${pnl >= 0 ? 'var(--gr)' : 'var(--rd)'}">${pnl > 0 ? '+' : ''}${pnl.toFixed(2)}€</b><br>Nouveau Solde : ${state.cap.toFixed(2)}€`);
+    localStorage.setItem('apex_v18_journal', JSON.stringify(state.journal));
+    addMsg('ai', `💰 Solde : ${state.cap.toFixed(2)}€`);
     updateUI();
 }
 
 function viewJournal() {
-    if(state.journal.length === 0) return addMsg('ai', "Journal vide.");
+    if(state.journal.length === 0) return addMsg('ai', "Aucun trade.");
     let html = "<b>📜 DERNIERS TRADES</b><hr>";
     state.journal.slice(-3).reverse().forEach(j => {
-        let col = j.pnl >= 0 ? 'var(--gr)' : 'var(--rd)';
-        html += `<div style="font-size:11px; margin-bottom:5px; border-bottom:1px solid #222; padding-bottom:3px;">
-        [${j.time}] ${j.strat} : <b style="color:${col}">${j.pnl > 0 ? '+' : ''}${j.pnl.toFixed(2)}€</b></div>`;
+        html += `<div style="font-size:11px; margin-bottom:5px;">[${j.time}] <b>${j.pnl > 0 ? '+' : ''}${j.pnl.toFixed(2)}€</b></div>`;
     });
     addMsg('ai', html);
 }
 
 function handleSend() {
     const inp = document.getElementById('userInput');
-    let val = inp.value.trim();
+    let val = inp.value.trim().replace(',', '.');
     if(!val) return;
-    if(!isNaN(val.replace(',', '.'))) {
-        state.cap = parseFloat(val.replace(',', '.')); 
-        state.startDayCap = state.cap;
-        addMsg('ai', `Capital initialisé à <b>${state.cap.toFixed(2)}€</b>.`);
-    } else {
-        addMsg('user', val);
-    }
+    if(!isNaN(val)) {
+        state.cap = parseFloat(val); state.startDayCap = state.cap;
+        addMsg('ai', `Capital : <b>${state.cap.toFixed(2)}€</b>.`);
+    } else { addMsg('user', val); }
     inp.value = ""; updateUI();
 }
 
-function clearChat() { document.getElementById('chat').innerHTML = '<div class="msg ai"><b>Terminal nettoyé.</b></div>'; }
+function clearChat() { document.getElementById('chat').innerHTML = '<div class="msg ai"><b>Nettoyé.</b></div>'; }
 
 function addMsg(role, content) {
     const chat = document.getElementById('chat');
     const div = document.createElement('div');
-    div.className = `msg ${role}`;
-    div.innerHTML = content;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-}
-
-function copyReport() {
-    navigator.clipboard.writeText(JSON.stringify(state.journal, null, 2));
-    alert("Journal copié !");
+    div.className = `msg ${role}`; div.innerHTML = content;
+    chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
 }
 
 updateUI();
