@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Gold Apex AI — Système Interne</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A84C;--gl:#E8C460;--gd:rgba(201,168,76,0.12);--gb:rgba(201,168,76,0.22);--bg:#080808;--bg2:#0E0E0E;--bg3:#141414;--tx:#DDD5C8;--mu:#555;--gr:#4CAF82;--rd:#E05555}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+
+/* HEADER STYLE V1 */
+.hdr{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #1A1A1A;background:var(--bg);flex-shrink:0}
+.hlogo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;background:linear-gradient(135deg,var(--gl),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.hstatus{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gr);font-family:'DM Mono',monospace}
+.hsd{width:7px;height:7px;border-radius:50%;background:var(--gr);animation:pl 2s infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* BARRE DE CAPITAL DYNAMIQUE */
+.cap-bar{background:var(--bg2);padding:10px 16px;border-bottom:1px solid #111;display:flex;justify-content:space-between;font-size:11px;font-family:'DM Mono',monospace}
+.cap-val{color:var(--gl);font-weight:bold}
+
+/* ONGLETS STRATÉGIES */
+.stabs{display:flex;border-bottom:1px solid #111;flex-shrink:0;overflow-x:auto;scrollbar-width:none;background:var(--bg2)}
+.stabs::-webkit-scrollbar{display:none}
+.stab{flex-shrink:0;padding:10px 15px;font-size:10px;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px}
+.stab.on{color:var(--gl);border-bottom-color:var(--gold);background:var(--gd)}
+
+/* ZONE DE CHAT */
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:85%;padding:12px 15px;border-radius:14px;font-size:13.5px;line-height:1.6;animation:fi 0.3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ai{background:var(--bg3);border-left:3px solid var(--gold);align-self:flex-start}
+.user{background:var(--gd);border:0.5px solid var(--gb);color:var(--gl);align-self:flex-end;border-bottom-right-radius:2px}
+
+/* ACTIONS RAPIDES */
+.qas{display:flex;gap:8px;padding:10px;overflow-x:auto;scrollbar-width:none;border-top:1px solid #111}
+.qas::-webkit-scrollbar{display:none}
+.qa{flex-shrink:0;background:var(--bg3);border:0.5px solid #222;border-radius:20px;color:#888;font-size:11px;padding:6px 14px;cursor:pointer}
+
+/* ENTRÉE MESSAGE */
+.in-area{padding:12px;background:var(--bg);display:flex;gap:10px;border-top:1px solid #111}
+input{flex:1;background:var(--bg3);border:1px solid #222;color:white;padding:12px;border-radius:12px;outline:none;font-size:14px}
+.sbtn{background:var(--gd);border:1px solid var(--gb);width:45px;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl)}
+
+/* OVERLAY DE SÉCURITÉ (DANGER DRAWDOWN) */
+#danger{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.dtit{color:var(--rd);font-family:'Bebas Neue',sans-serif;font-size:32px;margin-bottom:15px}
+.dtxt{font-size:14px;color:#aaa;line-height:1.6;margin-bottom:25px}
+</style>
+</head>
+<body>
+
+<div id="danger">
+    <div class="dtit">ALERTE DRAWDOWN -20%</div>
+    <div class="dtxt">
+        <strong>STOP IMMEDIAT !</strong><br>
+        Ton capital est passé sous les 80€. <br><br>
+        Rappelle-toi du <strong>Rapport J1</strong> : 25 trades, revenge trading et panique. Ton cerveau n'est plus en état de trader. <br><br>
+        Applique le Kill Switch. Éteins tout.
+    </div>
+    <button onclick="document.getElementById('danger').style.display='none'" style="background:var(--rd);color:white;border:none;padding:12px 25px;border-radius:8px;font-weight:bold">J'AI COMPRIS</button>
+</div>
+
+<div class="hdr">
+    <div>
+        <div class="hlogo">GOLD APEX AI</div>
+        <div style="font-size:9px;color:var(--mu);font-family:'DM Mono'">INTERNAL MULTI-STRAT v2</div>
+    </div>
+    <div class="hstatus" id="price"><div class="hsd"></div> XAUUSD: $---</div>
+</div>
+
+<div class="cap-bar">
+    <div>CAPITAL: <span id="capDisp" class="cap-val">100.00</span>€</div>
+    <div id="ddDisp" style="color:var(--mu)">DD: 0%</div>
+</div>
+
+<div class="stabs">
+    <div class="stab on" onclick="setStrat('liquidity')">Liquidity</div>
+    <div class="stab" onclick="setStrat('london')">London</div>
+    <div class="stab" onclick="setStrat('orderblock')">Order Block</div>
+    <div class="stab" onclick="setStrat('ict')">ICT</div>
+    <div class="stab" onclick="setStrat('ema')">EMA Ribbon</div>
+</div>
+
+<div class="msgs" id="chat">
+    <div class="msg ai">
+        <strong>Système Master prêt.</strong><br>
+        J'ai intégré toutes tes stratégies Gold. <br><br>
+        Sélectionne une stratégie en haut, ou dis-moi ton résultat (ex: <strong>"+12"</strong> ou <strong>"-5"</strong>) pour calculer ton prochain lot.
+    </div>
+</div>
+
+<div class="qas">
+    <div class="qa" onclick="quick('Calculer mon lot')">📐 Calcul Lot</div>
+    <div class="qa" onclick="quick('Analyse signal')">🔍 Analyse Sweep</div>
+    <div class="qa" onclick="quick('Psychologie J1')">🧠 Anti-Revenge</div>
+    <div class="qa" onclick="quick('Règle session')">⏰ Horaires</div>
+</div>
+
+<div class="in-area">
+    <input type="text" id="userInput" placeholder="Question ou profit/perte...">
+    <button class="sbtn" onclick="handleSend()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    </button>
+</div>
+
+<script>
+let state = {
+    cap: parseFloat(localStorage.getItem('apex_internal_cap')) || 100.00,
+    price: 0,
+    strat: 'liquidity'
+};
+
+const STRATS = {
+    liquidity: "Cible les sweeps M15/M5. Entre sur rejet bougie. SL = ATR.",
+    london: "Breakout du range 08:00-09:00. Trade l'impulsion de 09:15.",
+    orderblock: "Attendre le BOS (Break of Structure). Entre sur le 50% de l'OB.",
+    ict: "Chercher le FVG (Fair Value Gap) après un sweep de liquidité interne.",
+    ema: "EMA 21/50/200. On ne trade que dans le sens de la pente EMA 200."
+};
+
+function updateUI() {
+    document.getElementById('capDisp').innerText = state.cap.toFixed(2);
+    localStorage.setItem('apex_internal_cap', state.cap);
+    let dd = ((100 - state.cap) / 100) * 100;
+    document.getElementById('ddDisp').innerText = `DD: ${dd > 0 ? dd.toFixed(1) : 0}%`;
+    if(dd >= 20) document.getElementById('danger').style.display = 'flex';
+}
+
+async function getPrice() {
+    try {
+        const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');
+        const d = await r.json();
+        state.price = parseFloat(d.price).toFixed(2);
+        document.getElementById('price').innerHTML = `<div class="hsd"></div> XAUUSD: $${state.price}`;
+    } catch(e) {}
+}
+setInterval(getPrice, 10000); getPrice();
+
+function setStrat(s) {
+    state.strat = s;
+    document.querySelectorAll('.stab').forEach(el => el.classList.remove('on'));
+    event.target.classList.add('on');
+    addMsg('ai', `Mode **${s.toUpperCase()}** activé. <br>Règle : ${STRATS[s]}`);
+}
+
+function handleSend() {
+    const inp = document.getElementById('userInput');
+    if(!inp.value) return;
+    addMsg('user', inp.value);
+    process(inp.value);
+    inp.value = "";
+}
+
+function process(txt) {
+    let t = txt.toLowerCase();
+    let res = "";
+
+    if(t.includes('+') || t.includes('gagné')) {
+        let v = txt.match(/\d+/);
+        if(v) { state.cap += parseFloat(v[0]); res = `🔥 **Profit validé !** Nouveau capital : ${state.cap.toFixed(2)}€. <br>Ton lot est automatiquement ajusté.`; }
+    }
+    else if(t.includes('-') || t.includes('perdu')) {
+        let v = txt.match(/\d+/);
+        if(v) { state.cap -= parseFloat(v[0]); res = `📉 **Perte enregistrée.** Capital : ${state.cap.toFixed(2)}€. <br>Reste calme. Rappelle-toi : 2 pertes = On arrête.`; }
+    }
+    else if(t.includes('lot') || t.includes('calcul')) {
+        let risk = state.cap * 0.05;
+        let lot = (risk / 15).toFixed(2); // Basé sur SL 15 pips
+        res = `📐 **Calculateur Gold Apex** :<br>• Risque (5%) : **${risk.toFixed(2)}€**<br>• Prix : $${state.price}<br>👉 **LOT À SAISIR : ${lot}**`;
+    }
+    else if(t.includes('psy') || t.includes('revenge')) {
+        res = `🧠 **Garde-fou Psychologique** :<br>Ton J1 a prouvé que sans règles, tu paniques. Le marché ne te doit rien. Si tu es énervé, éteins tout. Tes 100€ sont sacrés.`;
+    }
+    else {
+        res = `Je suis ton coach interne. <br>Stratégie actuelle : **${state.strat}**. <br>Note tes trades ou demande un calcul de lot.`;
+    }
+
+    setTimeout(() => addMsg('ai', res), 400);
+    updateUI();
+}
+
+function addMsg(role, content) {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    div.innerHTML = content;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function quick(cmd) { addMsg('user', cmd); process(cmd); }
+
+updateUI();
+</script>
+</body>
+</html>
