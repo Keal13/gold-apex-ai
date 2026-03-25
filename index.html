@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gold Apex AI — Terminal Pro V8.1</title>
+<title>Gold Apex AI — Terminal Pro V9</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#C9A84C;--gl:#E8C460;--gd:rgba(201,168,76,0.12);--gb:rgba(201,168,76,0.22);--bg:#080808;--bg2:#0E0E0E;--bg3:#141414;--tx:#DDD5C8;--mu:#555;--gr:#4CAF82;--rd:#E05555}
@@ -11,64 +11,54 @@
 body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 .hdr{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #1A1A1A;flex-shrink:0}
 .hlogo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;background:linear-gradient(135deg,var(--gl),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hstatus{margin-left:auto;font-size:11px;color:var(--gr);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:5px}
-.hsd{width:7px;height:7px;border-radius:50%;background:var(--gr);animation:pl 2s infinite}
-@keyframes pl{0%,100%{opacity:1}50%{opacity:0.3}}
+.hstatus{margin-left:auto;font-size:11px;color:var(--gr);font-family:'DM Mono',monospace;display:none;align-items:center;gap:5px}
+.hstatus.active{display:flex}
+.hsd{width:8px;height:8px;border-radius:50%;background:var(--gr);animation:pl 1s infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:0.2}}
 .cap-bar{background:var(--bg2);padding:10px 16px;border-bottom:1px solid #111;display:flex;justify-content:space-between;font-size:11px;font-family:'DM Mono',monospace}
-.stabs{display:flex;border-bottom:1px solid #111;flex-shrink:0;overflow-x:auto;background:var(--bg2)}
+.stabs{display:flex;border-bottom:1px solid #111;flex-shrink:0;background:var(--bg2)}
 .stab{flex:1;padding:12px 5px;font-size:9px;color:var(--mu);cursor:pointer;border-bottom:2px solid transparent;font-family:'DM Mono',monospace;text-transform:uppercase;text-align:center}
 .stab.on{color:var(--gl);border-bottom-color:var(--gold);background:var(--gd)}
 .msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
 .msg{max-width:92%;padding:14px;border-radius:12px;font-size:13px;line-height:1.5}
 .ai{background:var(--bg3);border-left:3px solid var(--gold);align-self:flex-start}
 .user{background:var(--gd);color:var(--gl);align-self:flex-end}
-.mode-toggle{display:flex;padding:10px 16px;gap:10px;background:var(--bg2);border-bottom:1px solid #111}
-.mode-btn{flex:1;padding:8px;font-size:10px;border-radius:6px;border:1px solid #222;background:var(--bg3);color:var(--mu);cursor:pointer;text-align:center;font-family:'DM Mono'}
-.mode-btn.on{border-color:var(--gold);color:var(--gl);background:var(--gd)}
-.qas{display:flex;gap:8px;padding:10px;overflow-x:auto;border-top:1px solid #111}
-.qa{flex-shrink:0;background:var(--bg3);border:1px solid #222;border-radius:20px;color:#888;font-size:10px;padding:6px 14px;cursor:pointer}
+.qas{display:flex;gap:8px;padding:10px;overflow-x:auto;border-top:1px solid #111;background:var(--bg2)}
+.qa{flex-shrink:0;background:var(--bg3);border:1px solid #222;border-radius:20px;color:#888;font-size:10px;padding:8px 14px;cursor:pointer}
 .in-area{padding:12px;background:var(--bg);display:flex;gap:10px;border-top:1px solid #111}
 input{flex:1;background:var(--bg3);border:1px solid #222;color:white;padding:12px;border-radius:12px;outline:none}
 .sbtn{background:var(--gd);border:1px solid var(--gb);width:45px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--gl)}
 hr{border:0;border-top:1px solid rgba(201,168,76,0.2);margin:8px 0}
 b{color:var(--gl)}
+.trade-form{background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;margin-top:10px;border:1px solid var(--gb)}
+button.form-btn{background:var(--gold);border:none;color:black;padding:5px 10px;border-radius:4px;font-size:10px;font-weight:bold;cursor:pointer;margin-top:5px}
 </style>
 </head>
 <body>
 
 <div class="hdr">
     <div class="hlogo">GOLD APEX PRO</div>
-    <div class="hstatus" id="price"><div class="hsd"></div> XAU/USD $---</div>
+    <div class="hstatus" id="tradeIndicator"><div class="hsd"></div> TRADE EN COURS</div>
 </div>
 
 <div class="cap-bar">
-    <div>SOLDE: <span id="capDisp" style="color:var(--gl)">100.00</span>€</div>
+    <div>SOLDE: <span id="capDisp">100.00</span>€</div>
     <div id="ddDisp">DD: 0%</div>
-</div>
-
-<div class="mode-toggle">
-    <div id="btnMan" class="mode-btn on" onclick="setMode('MANUEL')">MANUEL (M)</div>
-    <div id="btnEA" class="mode-btn" onclick="setMode('EA Claude')">EA CLAUDE (A)</div>
 </div>
 
 <div class="stabs">
     <div class="stab" onclick="showStrat('LIQ')">LIQUIDITY</div>
     <div class="stab" onclick="showStrat('LDN')">LONDON</div>
     <div class="stab" onclick="showStrat('ICT')">ICT/FVG</div>
-    <div class="stab" onclick="showStrat('EMA')">EMA</div>
     <div class="stab" onclick="viewJournal()" style="background:var(--gb); color:var(--gl)">📜 JOURNAL</div>
 </div>
 
 <div class="msgs" id="chat">
-    <div class="msg ai"><b>Terminal Alpha V8.1 activé.</b><br>Mode actuel : <b id="modeLabel">MANUEL</b>.<br><br>Utilise <b>"Nettoyer"</b> pour vider le chat sans perdre tes données.</div>
+    <div class="msg ai"><b>Terminal Alpha V9.0 prêt.</b><br>Prêt pour ta session Vantage.<br>Clique sur 🟢 ou 🔴 pour ouvrir un trade.</div>
 </div>
 
-<div class="qas">
-    <div class="qa" onclick="handleTrade('achat')" style="border-color:var(--gr)">🟢 ACHAT</div>
-    <div class="qa" onclick="handleTrade('vente')" style="border-color:var(--rd)">🔴 VENTE</div>
-    <div class="qa" onclick="clearChat()">🧹 NETTOYER</div>
-    <div class="qa" onclick="copyReport()">📋 COPIER RAPPORT</div>
-</div>
+<div class="qas" id="actionButtons">
+    </div>
 
 <div class="in-area">
     <input type="text" id="userInput" placeholder="Note ou 'capital = 120'">
@@ -77,106 +67,135 @@ b{color:var(--gl)}
 
 <script>
 let state = { 
-    cap: parseFloat(localStorage.getItem('apex_v8_cap')) || 100.00, 
-    price: 2025.40, // Base XAUUSD
-    mode: 'MANUEL',
-    journal: JSON.parse(localStorage.getItem('apex_v8_journal')) || []
+    cap: parseFloat(localStorage.getItem('apex_v9_cap')) || 100.00, 
+    journal: JSON.parse(localStorage.getItem('apex_v9_journal')) || [],
+    activeTrade: null
 };
-
-// SIMULATION PRIX XAUUSD (Proche de Vantage)
-function updatePrice() {
-    let change = (Math.random() - 0.5) * 0.4;
-    state.price += change;
-    document.getElementById('price').innerHTML = `<div class="hsd"></div> XAU/USD $${state.price.toFixed(2)}`;
-}
-setInterval(updatePrice, 2000);
-
-const STRATS = {
-    LIQ: `<b>🎯 LIQUIDITY SWEEP</b><hr>Sweep de Liquidité M15 -> Entrée M1 après MSB.`,
-    LDN: `<b>🇬🇧 LONDON SILVER BULLET</b><hr>Focus 09:00. Judas Swing probable à 09:10.`,
-    ICT: `<b>💎 ICT FVG</b><hr>Cherche le Gap entre bougie 1 et 3 après impulsion.`,
-    EMA: `<b>📈 EMA TREND</b><hr>EMA 21 > 50. Rebond sur la jaune.`
-};
-
-function setMode(m) {
-    state.mode = m;
-    document.getElementById('btnMan').className = m === 'MANUEL' ? 'mode-btn on' : 'mode-btn';
-    document.getElementById('btnEA').className = m === 'EA Claude' ? 'mode-btn on' : 'mode-btn';
-    document.getElementById('modeLabel').innerText = m;
-    addMsg('ai', `Mode : <b>${m}</b>`);
-}
 
 function updateUI() {
     document.getElementById('capDisp').innerText = state.cap.toFixed(2);
-    localStorage.setItem('apex_v8_cap', state.cap);
-    let dd = ((100 - state.cap) / 100) * 100;
-    document.getElementById('ddDisp').innerText = `DD: ${dd > 0 ? dd.toFixed(1) : 0}%`;
+    localStorage.setItem('apex_v9_cap', state.cap);
+    
+    const indicator = document.getElementById('tradeIndicator');
+    const actions = document.getElementById('actionButtons');
+    
+    if(state.activeTrade) {
+        indicator.classList.add('active');
+        actions.innerHTML = `
+            <div class="qa" onclick="showCloseForm()" style="border-color:var(--rd); color:var(--rd)">❌ CLÔTURER LE TRADE</div>
+            <div class="qa" onclick="clearChat()">🧹 NETTOYER</div>
+        `;
+    } else {
+        indicator.classList.remove('active');
+        actions.innerHTML = `
+            <div class="qa" onclick="askEntry('achat')" style="border-color:var(--gr)">🟢 ACHAT</div>
+            <div class="qa" onclick="askEntry('vente')" style="border-color:var(--rd)">🔴 VENTE</div>
+            <div class="qa" onclick="clearChat()">🧹 NETTOYER</div>
+            <div class="qa" onclick="copyReport()">📋 COPIER RAPPORT</div>
+        `;
+    }
 }
 
-function handleTrade(type) {
-    let lot = (state.cap * 0.05 / 15).toFixed(2);
-    let tradeInfo = {
-        date: new Date().toLocaleTimeString(),
-        type: type.toUpperCase(),
-        price: state.price.toFixed(2),
-        lot: lot,
-        mode: state.mode
+function askEntry(type) {
+    addMsg('ai', `<b>Ouverture ${type.toUpperCase()}</b><br>Entre ton prix d'entrée actuel (ex: 2024.50) :
+        <div class="trade-form">
+            <input type="number" id="priceInp" step="0.01" style="width:100%; margin-bottom:5px;">
+            <button class="form-btn" onclick="confirmTrade('${type}')">VALIDER L'ENTRÉE</button>
+        </div>`);
+}
+
+function confirmTrade(type) {
+    const p = parseFloat(document.getElementById('priceInp').value);
+    if(!p) return;
+
+    let riskAmt = state.cap * 0.05; // Risque 5%
+    let lot = (riskAmt / 20).toFixed(2); // Calcul lot simplifié pour Gold
+    let sl = type === 'achat' ? p - 3 : p + 3;
+    let tp = type === 'achat' ? p + 6 : p - 6;
+
+    state.activeTrade = { type, entry: p, lot, sl, tp, time: new Date().toLocaleTimeString() };
+    
+    addMsg('ai', `✅ <b>TRADE ACTIF</b><hr>Type: ${type.toUpperCase()}<br>Entrée: ${p}<br>Lot: <b>${lot}</b><br>SL: ${sl.toFixed(2)} | TP: ${tp.toFixed(2)}`);
+    updateUI();
+}
+
+function showCloseForm() {
+    addMsg('ai', `<b>Clôture du trade</b><br>Quel est le résultat ?
+        <div class="trade-form">
+            <select id="resType" style="width:100%; background:#222; color:white; border:1px solid #444; padding:5px; margin-bottom:5px;">
+                <option value="TP">🎯 TAKE PROFIT (TP)</option>
+                <option value="SL">🛑 STOP LOSS (SL)</option>
+                <option value="MANUAL">✋ SORTIE MANUELLE</option>
+            </select>
+            <input type="number" id="pnlInp" step="0.01" placeholder="Gain ou perte (€)">
+            <button class="form-btn" onclick="confirmClose()">ENREGISTRER CLÔTURE</button>
+        </div>`);
+}
+
+function confirmClose() {
+    const pnl = parseFloat(document.getElementById('pnlInp').value) || 0;
+    const res = document.getElementById('resType').value;
+    
+    const finishedTrade = {
+        ...state.activeTrade,
+        closeTime: new Date().toLocaleTimeString(),
+        result: res,
+        pnl: pnl
     };
-    state.journal.push(tradeInfo);
-    saveJournal();
-    addMsg('ai', `<b>Ordre ${type.toUpperCase()}</b> enregistré.<br>Prix: ${state.price.toFixed(2)} | Lot: ${lot}`);
+
+    state.cap += pnl;
+    state.journal.push(finishedTrade);
+    state.activeTrade = null;
+    
+    localStorage.setItem('apex_v9_journal', JSON.stringify(state.journal));
+    addMsg('ai', `<b>Trade archivé.</b> Résultat : ${pnl > 0 ? '🟢' : '🔴'} ${pnl}€`);
+    updateUI();
 }
 
 function viewJournal() {
-    if(state.journal.length === 0) {
-        addMsg('ai', "Le journal est vide.");
-        return;
-    }
-    let html = "<b>📜 HISTORIQUE RÉCENT</b><hr>";
-    state.journal.slice(-10).reverse().forEach(j => {
-        html += `<div style="font-size:11px; margin-bottom:5px; border-bottom:1px dashed #333">
-        [${j.date}] <b>${j.type}</b> - ${j.price}$ (Lot: ${j.lot || 'N/A'}) ${j.note || ''}
+    if(state.journal.length === 0) return addMsg('ai', "Le journal est vide.");
+    let html = "<b>📜 DERNIERS TRADES</b><hr>";
+    state.journal.slice(-5).reverse().forEach(j => {
+        html += `<div style="font-size:11px; margin-bottom:8px; border-bottom:1px solid #222">
+        [${j.time}] ${j.type} @${j.entry} | <b>${j.pnl > 0 ? '+' : ''}${j.pnl}€</b> (${j.result})
         </div>`;
     });
     addMsg('ai', html);
 }
 
 function clearChat() {
-    document.getElementById('chat').innerHTML = '<div class="msg ai"><b>Chat nettoyé.</b><br>Données de trading conservées.</div>';
+    document.getElementById('chat').innerHTML = '<div class="msg ai"><b>Terminal nettoyé.</b></div>';
 }
 
 function handleSend() {
     const inp = document.getElementById('userInput');
     let val = inp.value.trim();
     if(!val) return;
-    addMsg('user', val);
-    
     if(val.toLowerCase().includes('capital')) {
         let num = val.match(/[\d.]+/);
-        if(num) {
-            state.cap = parseFloat(num[0]);
-            state.journal.push({date: new Date().toLocaleTimeString(), type: 'MAJ CAP', note: `Nouveau solde: ${state.cap}€`});
-            saveJournal();
-            addMsg('ai', `✅ Capital mis à jour : ${state.cap}€`);
-        }
+        if(num) { state.cap = parseFloat(num[0]); addMsg('ai', `Solde : ${state.cap}€`); }
     } else {
+        addMsg('user', val);
         state.journal.push({date: new Date().toLocaleTimeString(), type: 'NOTE', note: val});
-        saveJournal();
     }
     inp.value = ""; updateUI();
 }
 
-function saveJournal() {
-    localStorage.setItem('apex_v8_journal', JSON.stringify(state.journal));
-}
-
 function copyReport() {
-    let report = `RAPPORT GOLD APEX :\nSolde: ${state.cap}€\nMode: ${state.mode}\nJournal:\n` + JSON.stringify(state.journal.slice(-15));
+    let report = `SESSION GOLD APEX\nSolde: ${state.cap}€\nJournal:\n` + JSON.stringify(state.journal.slice(-10));
     navigator.clipboard.writeText(report);
-    alert("Rapport copié ! Colle-le dans notre chat.");
+    alert("Copié !");
 }
 
-function showStrat(s) { addMsg('ai', STRATS[s]); }
+function showStrat(s) {
+    const S = {
+        LIQ: "<b>🎯 LIQUIDITY</b><hr>Sweep M15, entrée sur BOS M1.",
+        LDN: "<b>🇬🇧 LONDON</b><hr>Manipulation à 09:10 (Judas Swing).",
+        ICT: "<b>💎 ICT/FVG</b><hr>Fair Value Gap après impulsion."
+    };
+    addMsg('ai', S[s]);
+}
+
 function addMsg(role, content) {
     const chat = document.getElementById('chat');
     const div = document.createElement('div');
